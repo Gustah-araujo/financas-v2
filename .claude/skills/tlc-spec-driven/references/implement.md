@@ -1,8 +1,10 @@
 # Execute
 
-**Goal**: Implement ONE task at a time. Surgical changes. Verify. Commit. Repeat.
+**Goal**: Implement ONE task at a time. Test-first TDD. Surgical changes. Verify. Commit. Repeat.
 
-This is where code gets written. Every task follows the same cycle: plan → implement → verify → commit. Verification is built into every task, not a separate phase.
+**Test harness**: Every task follows the RED → GREEN → VERIFY cycle. Tests are written FIRST, before any implementation code. The test runner is the arbiter of correctness — code is correct only when tests pass.
+
+This is where code gets written. Every task follows the same cycle: plan → test (RED) → implement (GREEN) → verify → commit. Verification is built into every task, not a separate phase.
 
 ---
 
@@ -66,34 +68,35 @@ Approach: [brief description]
 Success: [how to verify]
 ```
 
-### 4. Write Tests First (RED)
+### 4. Write Tests First (RED) — MANDATORY when task has Tests field
 
 If the task includes tests (per the Tests field in tasks.md or TESTING.md coverage matrix):
 
-1. Write the test file(s) BEFORE writing any implementation
-2. Tests must encode the expected behavior from the task's "Done when" criteria
+1. Write the test file(s) BEFORE writing any implementation code
+2. Tests must encode the expected behavior from the task's "Done when" criteria AND the test design from design.md
 3. Run the test command — confirm tests FAIL (RED state)
 4. If tests pass before implementation exists, the tests are too weak — rewrite them
+5. If the task has Tests: none, skip to Step 5
 
 **Constraints:**
 
 - Tests define correct behavior independently of implementation
 - Each acceptance criterion from "Done when" maps to at least one test assertion
-- Edge cases from spec.md that apply to this task get test cases too
+- Edge cases from the design's test design section get test cases too
+- Test count recorded for post-gate verification
+- Never use `.skip`, `.todo`, or pending mechanisms to bypass failing tests
 
-If the task does NOT include tests (e.g., entity-only, config-only), skip to Step 4b.
+### 5. Implement (GREEN)
 
-### 4b. Implement (GREEN)
-
-Write the minimum implementation needed to satisfy the task's success criteria: pass all relevant tests (when present) and meet the defined verification/gate checks when there are no direct tests.
+Write the minimum implementation needed to pass all tests written in Step 4.
 
 **HARD CONSTRAINTS:**
 
-- Do NOT modify tests written in Step 4. The tests are the spec — implementation conforms to them.
+- Do NOT modify tests written in Step 4. The tests ARE the spec — implementation conforms to them.
 - Do NOT weaken assertions (making them less specific to pass more easily)
 - Do NOT delete or skip test cases
-- Do NOT use the test framework's skip/disable/pending mechanism to bypass failing tests
 - Minimum code to pass — save structural improvements for a refactor task
+- If implementation reveals a gap that requires more than the task scope, add a SPEC_DEVIATION marker
 
 If a test is genuinely wrong (tests the wrong behavior per spec), STOP and ask the user
 before modifying it. Never silently change a test.
@@ -104,7 +107,7 @@ Follow [coding-principles.md](coding-principles.md):
 - Touch ONLY listed files
 - No scope creep
 
-### 5. Gate Check (VERIFY)
+### 6. Gate Check (VERIFY)
 
 Run the gate check command from the task definition. This is MANDATORY — not "if applicable."
 
@@ -124,7 +127,7 @@ Run the gate check command from the task definition. This is MANDATORY — not "
 The gate check is deterministic. The test runner decides if the code is correct,
 not the agent's self-assessment.
 
-### 6. Post-Gate Review
+### 7. Post-Gate Review
 
 After the gate check passes:
 
@@ -140,7 +143,7 @@ After the gate check passes:
    - Yes → Simplify, re-run gate
    - No → Proceed to commit
 
-### 7. Atomic Git Commit
+### 8. Atomic Git Commit
 
 Each task gets its own commit immediately after verification. Never batch multiple tasks into one commit.
 
@@ -210,7 +213,7 @@ for reuse across multiple endpoints.
 - Include only files listed in the task — never sneak in "while I'm here" changes
 - If tests are part of the task, include them in the same commit
 
-### 8. Scope Guardrail
+### 9. Scope Guardrail
 
 During implementation, you will notice things that could be improved, refactored, or added. **Do not act on them.** Instead:
 
@@ -220,7 +223,7 @@ During implementation, you will notice things that could be improved, refactored
 
 **The heuristic:** "Is this in my task definition?" If no, don't touch it.
 
-### 9. Update Task Status
+### 10. Update Task Status
 
 Mark task complete in tasks.md. Update requirement traceability in spec.md if requirement IDs are used.
 
@@ -275,6 +278,7 @@ Mark task complete in tasks.md. Update requirement traceability in spec.md if re
 ## Tips
 
 - **One task at a time** — Focus prevents errors
+- **Test-first always** — RED → GREEN → VERIFY is non-negotiable for tasks with tests
 - **Tools matter** — Wrong MCP = wrong approach
 - **Reuses save tokens** — Copy patterns, don't reinvent
 - **Check before commit** — Verify all criteria, then commit

@@ -24,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/ui-showcase', fn() => Inertia::render('UI/Showcase'));
+Route::get('/ui-showcase', fn() => Inertia::render('UI/Showcase'))->middleware(['auth']);
 
 Route::get('/api/ui-showcase-table', function () {
     $data = collect([

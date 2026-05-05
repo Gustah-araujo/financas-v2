@@ -146,6 +146,66 @@ interface AnotherModel {
 
 ---
 
+## Test Design
+
+Define what tests will be written BEFORE breaking into tasks. Every component, function, and endpoint designed above gets its test strategy here. Tests are NOT an afterthought — they're designed alongside the architecture.
+
+### Test Structure
+
+```
+tests/                      # Or __tests__/ colocated
+├── [Feature]/
+│   ├── [Component].test.tsx   # Unit: render, props, states, callbacks
+│   ├── [Component].test.ts    # Unit: pure functions, hooks
+│   ├── [Service].test.ts      # Unit: business logic, transformations
+│   ├── [Endpoint].test.ts     # Integration: API requests, responses
+│   └── [Flow].test.tsx        # E2E: user journeys, page interactions
+```
+
+### Test Type Decision Matrix
+
+| What to test | Test Type | Scope |
+|-------------|-----------|-------|
+| Pure logic, state changes, data transforms | **Unit** | One function/component, no deps |
+| Component rendering + interaction | **Unit (RTL)** | One component, mocked deps |
+| API endpoint → response | **Integration** | Controller + DB + middleware |
+| User flow across pages | **E2E** | Full stack, real browser |
+
+### Test Cases (per component/function/endpoint)
+
+For each deliverable designed above, list the test cases:
+
+```markdown
+### [Component/Function Name] Tests
+
+**Test type**: unit | integration | e2e
+**Test framework**: vitest + RTL | phpunit
+
+| # | Test Case | Maps to AC | Input | Expected Output/Behavior |
+|---|-----------|-----------|-------|-------------------------|
+| 1 | [Description] | AC-1 | [Given] | [Then shall] |
+| 2 | [Description] | AC-2 | [Given] | [Then shall] |
+| 3 | [Edge case] | AC-3 | [Boundary] | [Then shall] |
+```
+
+### Edge Case Coverage
+
+List edge cases from spec.md that need dedicated test cases:
+
+| Edge Case | Test Strategy |
+|-----------|--------------|
+| [Scenario] | [How tested — unit, integration, manual] |
+
+### Test Data Strategy
+
+- **Fixtures**: What seed data is needed? Use factories or test data builders.
+- **Mocks**: What dependencies are mocked? Why?
+- **Stubs**: What external services are stubbed?
+
+**Coverage goal**: Every acceptance criterion in spec.md maps to ≥1 test case. Every component interface method gets ≥1 test. Every edge case either has an automated test or a documented reason for manual testing.
+
+---
+
 ## Tech Decisions (only non-obvious ones)
 
 | Decision          | Choice          | Rationale     |
@@ -163,4 +223,5 @@ interface AnotherModel {
 - **Keep it visual** — Diagrams save 1000 words (check mermaid-studio skill in Skill Integrations)
 - **Small components** — If component does 3+ things, split it
 - **Check CONCERNS.md** — If it exists, flag fragile areas the design must address
+- **Design tests alongside architecture** — Every component design must include test cases. Tests are not an afterthought.
 - **Confirm before Tasks** — User approves design before breaking into tasks
