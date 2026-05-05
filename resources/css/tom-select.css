@@ -1,0 +1,39 @@
+@import 'tom-select/dist/css/tom-select.css';
+
+.ts-wrapper {
+  font-family: inherit;
+}
+
+.ts-wrapper .ts-control {
+  @apply w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500;
+  font-family: inherit;
+}
+
+.ts-wrapper.focus .ts-control {
+  @apply border-primary-500 ring-1 ring-primary-500;
+}
+
+.ts-wrapper .ts-dropdown {
+  @apply rounded-md shadow-lg border border-gray-200;
+  font-family: inherit;
+}
+
+.ts-wrapper .ts-dropdown .option {
+  @apply px-3 py-2 text-sm;
+}
+
+.ts-wrapper .ts-dropdown .option.active {
+  @apply bg-primary-500 text-white;
+}
+
+.ts-wrapper .ts-dropdown .option:hover {
+  @apply bg-primary-50 text-primary-900;
+}
+
+.ts-wrapper.multi .ts-control > div {
+  @apply bg-primary-50 text-primary-700 border-primary-200 rounded;
+}
+
+.ts-wrapper .ts-control > input {
+  font-family: inherit;
+}
