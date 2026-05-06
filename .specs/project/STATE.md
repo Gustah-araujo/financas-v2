@@ -42,6 +42,26 @@
 **Rationale:** Search nativo com scoring, remote loading, multi-select e plugins. Framework-agnostic, sem jQuery. Wrapper React via `useRef` + `useEffect` gerencia lifecycle.
 **Date:** 2026-05-04
 
+### D09: Workspace onboarding flow
+**Decision:** Após registro (ou login sem workspaces), usuário vai para tela de onboarding com duas opções: "Criar Workspace" ou "Entrar com código de convite". Middleware bloqueia acesso a qualquer rota auth até ter pelo menos 1 workspace.
+**Rationale:** Força o usuário a ter contexto antes de interagir com o app. Evita edge cases de "usuário sem workspace" em todas as rotas.
+**Date:** 2026-05-05
+
+### D10: Convite via link compartilhável
+**Decision:** Convites usam link com token UUID (`/invite/{token}`). Owner pode copiar o link ou enviar por email. Token é single-use.
+**Rationale:** Link compartilhável é mais flexível que email-only (WhatsApp, mensagem, etc). Email é opcional (conveniência). UUID previne enumeração.
+**Date:** 2026-05-05
+
+### D11: Papéis simplificados (owner/editor)
+**Decision:** MVP terá apenas 2 papéis: `owner` (controle total incluindo membros) e `editor` (CRUD de entidades financeiras, sem gerenciar membros). Papel `viewer` adiado.
+**Rationale:** 2 papéis cobrem os casos reais de uso. Viewer seria refinamento futuro. Simplifica middleware e testes.
+**Date:** 2026-05-05
+
+### D12: Workspace switcher no header
+**Decision:** Seletor de workspace ativo no header da aplicação (dropdown com lista de workspaces do usuário). Workspace ativo armazenado na sessão. Middleware injeta workspace_id em todas as queries como scope automático.
+**Rationale:** Header é o local padrão para context switching. Sessão persiste a escolha entre requests e logins.
+**Date:** 2026-05-05
+
 ## Blockers
 
 Nenhum no momento.

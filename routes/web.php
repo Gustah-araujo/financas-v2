@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\MemberController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WorkspaceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,17 +18,20 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/invite/{token}', [InvitationController::class, 'show'])
+    ->name('invitation.show');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+    Route::get('/onboarding', [OnboardingController::class, 'show'])
+        ->name('onboarding');
+    Route::post('/workspaces', [WorkspaceController::class, 'store'])
+        ->name('workspaces.store');
 
-Route::get('/ui-showcase', fn() => Inertia::render('UI/Showcase'))->middleware(['auth']);
+    Route::post('/invite/{token}/accept', [InvitationController::class, 'accept'])
+        ->name('invitation.accept');
+
+    Route::get('/ui-showcase', fn () => Inertia::render('UI/Showcase'));
+});
 
 Route::get('/api/ui-showcase-table', function () {
     $data = collect([
@@ -46,6 +53,41 @@ Route::get('/api/ui-showcase-table', function () {
             'to' => $data->count(),
         ],
     ]);
+});
+
+Route::middleware(['auth', 'workspace'])->group(function () {
+    Route::get('/dashboard', fn () => Inertia::render('Dashboard'))
+        ->middleware('verified')
+        ->name('dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::prefix('/workspace')->name('workspace.')->group(function () {
+        Route::get('/members', [MemberController::class, 'index'])
+            ->name('members')
+            ->middleware('can:manage-workspace-members');
+
+        Route::post('/invite', [MemberController::class, 'invite'])
+            ->name('invite')
+            ->middleware('can:invite-to-workspace');
+
+        Route::patch('/members/{user}', [MemberController::class, 'updateRole'])
+            ->name('members.update-role')
+            ->middleware('can:manage-workspace-members');
+
+        Route::delete('/members/{user}', [MemberController::class, 'destroy'])
+            ->name('members.destroy')
+            ->middleware('can:manage-workspace-members');
+
+        Route::delete('/invitations/{invitation}', [MemberController::class, 'cancelInvitation'])
+            ->name('invitations.destroy')
+            ->middleware('can:manage-workspace-members');
+    });
+
+    Route::post('/switch-workspace/{workspace}', [WorkspaceController::class, 'switch'])
+        ->name('workspace.switch');
 });
 
 require __DIR__.'/auth.php';

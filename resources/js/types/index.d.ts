@@ -1,3 +1,5 @@
+import { WorkspaceProps } from './workspace';
+
 export interface User {
     id: number;
     name: string;
@@ -11,4 +13,6 @@ export type PageProps<
     auth: {
         user: User;
     };
+    workspace: WorkspaceProps | null;
+    workspaces: WorkspaceProps[];
 };

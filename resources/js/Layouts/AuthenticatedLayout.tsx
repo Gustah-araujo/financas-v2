@@ -2,6 +2,7 @@ import AppShell from '@/Components/layout/AppShell'
 import Sidebar, { type SidebarItem } from '@/Components/layout/Sidebar'
 import Header from '@/Components/layout/Header'
 import Dropdown from '@/Components/Dropdown'
+import WorkspaceSwitcher from '@/Components/workspace/WorkspaceSwitcher'
 import { usePage } from '@inertiajs/react'
 import { PropsWithChildren, ReactNode } from 'react'
 import {
@@ -58,7 +59,9 @@ export default function Authenticated({
             header={
                 <Header
                     actions={
-                        <Dropdown>
+                        <>
+                            <WorkspaceSwitcher />
+                            <Dropdown>
                             <Dropdown.Trigger>
                                 <span className="inline-flex rounded-md">
                                     <button
@@ -96,6 +99,7 @@ export default function Authenticated({
                                 </Dropdown.Link>
                             </Dropdown.Content>
                         </Dropdown>
+                        </>
                     }
                 />
             }

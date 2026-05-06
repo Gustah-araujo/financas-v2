@@ -33,6 +33,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if (! $request->user()->hasWorkspaces()) {
+            return redirect()->route('onboarding');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

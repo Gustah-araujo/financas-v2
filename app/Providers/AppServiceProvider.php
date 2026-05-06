@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,5 +23,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        Gate::define('manage-workspace-members', function (User $user) {
+            $workspace = active_workspace();
+            return $workspace && $user->workspaceRole($workspace) === 'owner';
+        });
+
+        Gate::define('invite-to-workspace', function (User $user) {
+            $workspace = active_workspace();
+            return $workspace && $user->workspaceRole($workspace) === 'owner';
+        });
     }
 }

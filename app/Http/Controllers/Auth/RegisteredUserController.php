@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\WorkspaceInvitation;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -47,6 +49,18 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        if ($request->invite_token) {
+            $invitation = WorkspaceInvitation::where('token', $request->invite_token)->first();
+
+            if ($invitation && $invitation->isValid()) {
+                $invitation->workspace->users()->attach($user->id, ['role' => 'editor']);
+                $invitation->update(['accepted_at' => now()]);
+                $request->session()->put('active_workspace_id', $invitation->workspace_id);
+
+                return Redirect::route('dashboard');
+            }
+        }
+
+        return Redirect::route('onboarding');
     }
 }
