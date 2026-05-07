@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\WorkspaceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -88,6 +90,33 @@ Route::middleware(['auth', 'workspace'])->group(function () {
 
     Route::post('/switch-workspace/{workspace}', [WorkspaceController::class, 'switch'])
         ->name('workspace.switch');
+
+    Route::get('/accounts', [AccountController::class, 'index'])
+        ->name('accounts.index')
+        ->middleware('can:manage-financial-entities');
+    Route::post('/accounts', [AccountController::class, 'store'])
+        ->name('accounts.store')
+        ->middleware('can:manage-financial-entities');
+    Route::patch('/accounts/{account}', [AccountController::class, 'update'])
+        ->name('accounts.update')
+        ->middleware('can:manage-financial-entities');
+    Route::delete('/accounts/{account}', [AccountController::class, 'destroy'])
+        ->name('accounts.destroy')
+        ->middleware('can:manage-financial-entities');
+
+    Route::get('/api/accounts', [AccountController::class, 'apiIndex'])
+        ->name('api.accounts.index')
+        ->middleware('can:manage-financial-entities');
+    Route::get('/api/accounts/{account}/transactions', [TransactionController::class, 'apiIndex'])
+        ->name('api.accounts.transactions')
+        ->middleware('can:manage-financial-entities');
+
+    Route::post('/accounts/{account}/transactions', [TransactionController::class, 'store'])
+        ->name('accounts.transactions.store')
+        ->middleware('can:manage-financial-entities');
+    Route::post('/accounts/{account}/transfer', [TransactionController::class, 'transfer'])
+        ->name('accounts.transfer')
+        ->middleware('can:manage-financial-entities');
 });
 
 require __DIR__.'/auth.php';

@@ -1,4 +1,5 @@
 import { WorkspaceProps } from './workspace';
+import type { AccountRow } from './accounts';
 
 export interface User {
     id: number;
@@ -15,4 +16,5 @@ export type PageProps<
     };
     workspace: WorkspaceProps | null;
     workspaces: WorkspaceProps[];
+    accounts?: AccountRow[];
 };

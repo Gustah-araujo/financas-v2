@@ -27,8 +27,9 @@ export default function Authenticated({
         },
         {
             label: 'Accounts',
-            href: '/accounts',
+            href: route('accounts.index'),
             icon: faBuildingColumns,
+            active: route().current('accounts.*'),
         },
         {
             label: 'Transactions',

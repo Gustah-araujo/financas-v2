@@ -33,5 +33,15 @@ class AppServiceProvider extends ServiceProvider
             $workspace = active_workspace();
             return $workspace && $user->workspaceRole($workspace) === 'owner';
         });
+
+        Gate::define('manage-financial-entities', function (User $user) {
+            $workspace = active_workspace();
+
+            if (! $workspace) {
+                return false;
+            }
+
+            return in_array($user->workspaceRole($workspace), ['owner', 'editor'], true);
+        });
     }
 }
