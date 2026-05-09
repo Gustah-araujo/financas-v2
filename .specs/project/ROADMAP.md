@@ -19,7 +19,7 @@
 | # | Feature | Status | Depends On |
 |---|---------|--------|------------|
 | F01 | Workspaces & Multi-User Auth | 🟢 Complete | F00 |
-| F02 | Contas & Saldos | 🔴 Pending | F01 |
+| F02 | Contas & Saldos | 🟡 In Progress | F01 |
 | F03 | Gastos em Débito | 🔴 Pending | F02 |
 | F04 | Categorias | 🔴 Pending | F01 |
 | F05 | Gastos Futuros & Planejamento | 🔴 Pending | F03, F04 |
