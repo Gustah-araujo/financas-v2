@@ -1,0 +1,113 @@
+services:
+
+  # ─── PHP-FPM (aplicação Laravel) ───────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: financas_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/node_modules  # exclui node_modules do bind mount
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    networks:
+      - financas
+
+  # ─── PHP-FPM dedicado para o Laravel Reverb ────────────────────────────────
+  reverb:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: financas_reverb
+    restart: unless-stopped
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080 --no-interaction
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/node_modules
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - financas
+    expose:
+      - "8080"
+
+  # ─── Nginx ─────────────────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: financas_nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/node_modules
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+      - reverb
+    networks:
+      - financas
+
+  # ─── MariaDB ───────────────────────────────────────────────────────────────
+  mariadb:
+    image: mariadb:11.4
+    container_name: financas_mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-secret}
+      MARIADB_DATABASE: ${DB_DATABASE:-financas}
+      MARIADB_USER: ${DB_USERNAME:-financas}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - financas
+
+  # ─── phpMyAdmin ────────────────────────────────────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: financas_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USERNAME:-financas}
+      PMA_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "${PHPMYADMIN_PORT:-8081}:80"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - financas
+
+  # ─── Mailpit ───────────────────────────────────────────────────────────────
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: financas_mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"   # UI web
+      - "${MAIL_PORT:-1025}:1025"         # SMTP
+    networks:
+      - financas
+
+volumes:
+  mariadb_data:
+
+networks:
+  financas:
+    driver: bridge
