@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -30,8 +31,8 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
-    $workspace = null;
-    $workspaces = collect([]);
+        $workspace = null;
+        $workspaces = collect([]);
 
         if ($user) {
             $workspaces = $user->workspaces()
@@ -62,6 +63,15 @@ class HandleInertiaRequests extends Middleware
             'auth' => ['user' => $user],
             'workspace' => $workspace,
             'workspaces' => is_object($workspaces) ? $workspaces->toArray() : $workspaces,
+            'categories' => $workspace
+                ? Category::query()->orderBy('name')->get(['id', 'name'])->toArray()
+                : [],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'info' => $request->session()->get('info'),
+                'warning' => $request->session()->get('warning'),
+                'error' => $request->session()->get('error'),
+            ],
         ];
     }
 }

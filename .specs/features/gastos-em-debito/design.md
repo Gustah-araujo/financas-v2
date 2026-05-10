@@ -4,14 +4,15 @@
 
 Implementar o fluxo de gastos em débito sobre o ledger já existente de `transactions`, sem persistir um saldo duplicado em `accounts`.
 O saldo da conta continua sendo derivado de `initial_balance` + movimentações, o que já atende a atualização automática ao criar, editar e excluir lançamentos.
-O mesmo slice também inclui a navegação para cadastro de categorias e o seed automático de categorias padrão por workspace.
+O fluxo de gastos deve ficar dentro do menu `Transações`, que abre a listagem de transações e expõe o CTA para registrar um novo gasto antes da tabela.
+O CRUD de categorias permanece separado, em `Configurações > Categorias`, e o fluxo de transações apenas consome as categorias já cadastradas.
 
 ## Design Goals
 
 - Registrar gastos em débito no workspace ativo, vinculados a uma conta.
 - Manter consistência do saldo sem salvar um campo extra de saldo corrente.
 - Permitir alerta de saldo insuficiente sem bloquear o salvamento.
-- Preparar a base para listagem e consulta futura de gastos em débito.
+- Exibir o fluxo de gastos dentro da listagem de transações existente.
 
 ## Key Decision
 
@@ -40,8 +41,8 @@ Campos usados no MVP:
 
 ### Category integration
 
-O spec exige categoria por lançamento, mas o domínio de categorias ainda não existe no códigobase.
-O design assume a criação de um modelo `Category` scoped por workspace, com `category_id` no lançamento de débito quando F04 estiver disponível.
+O spec exige categoria por lançamento e o domínio de categorias existe como cadastro separado.
+O fluxo de transações deve usar `category_id` apenas como referência às categorias já cadastradas no workspace.
 
 ### Workspace seeding
 
@@ -55,7 +56,8 @@ O seed deve ser idempotente por workspace, para não duplicar categorias quando 
 
 ### Write flow
 
-1. Usuário envia conta, valor, descrição, data e categoria.
+1. Usuário acessa `Transações` e inicia um novo gasto a partir do CTA acima da listagem.
+2. Usuário envia conta, valor, descrição, data e categoria.
 2. `StoreTransactionRequest` valida os dados.
 3. Controller grava a transação dentro de `DB::transaction()`.
 4. O saldo da conta muda automaticamente porque é derivado do ledger.
@@ -124,13 +126,15 @@ O frontend precisa de um formulário de gasto em débito com:
 
 Quando a categoria ainda não estiver disponível no backend, o campo deve ser tratado como preparação de integração, não como dependência do fluxo de criação.
 
-### Sidebar
+### Sidebar and page entry
 
-O menu lateral deve ganhar um grupo `Configurações` com subitem `Categorias`.
+O menu lateral deve manter `Configurações > Categorias` para o CRUD de categorias e expor `Transações` como entrada principal do fluxo de gastos.
 
-Esse item deve apontar para a área de gerenciamento de categorias dentro do workspace ativo e seguir o padrão visual atual do sidebar em `resources/js/Components/layout/Sidebar.tsx` e `AuthenticatedLayout.tsx`.
+`Configurações > Categorias` deve seguir o padrão visual atual do sidebar em `resources/js/Components/layout/Sidebar.tsx` e `AuthenticatedLayout.tsx`.
 
-O item deve ficar agrupado com outras rotas administrativas, não misturado com a navegação financeira principal.
+`Transações` deve abrir a listagem de transações no workspace ativo.
+
+Na página de listagem, o CTA de `Novo gasto` deve aparecer antes da tabela de gastos, deixando o fluxo de criação imediatamente acessível.
 
 ## Test Strategy
 
@@ -156,9 +160,9 @@ Feature tests para o fluxo HTTP, com factories existentes de `Workspace`, `Accou
 | DEBIT-04 | Update/delete rely on recalculation from the ledger |
 | DEBIT-05 | Scoped update/delete must preserve original account consistency |
 | DEBIT-06 | API endpoint already provides transaction listing basis |
-| DEBIT-07 | Sidebar gains Configurações > Categorias entry |
+| DEBIT-07 | Sidebar keeps Configurações > Categorias for category CRUD |
 | DEBIT-08 | Workspace creation seeds default categories |
 
 ## Open Question
 
-- A categoria deve ser obrigatória já neste slice, ou o fluxo principal pode entrar primeiro e receber categoria quando F04 estiver concluída? Estou assumindo integração posterior para não bloquear o MVP do débito.
+- A categoria deve ser obrigatória já neste slice ou o backend deve aceitar transações sem categoria até a configuração inicial do workspace estar completa?

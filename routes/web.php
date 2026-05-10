@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\OnboardingController;
@@ -104,6 +105,13 @@ Route::middleware(['auth', 'workspace'])->group(function () {
         ->name('accounts.destroy')
         ->middleware('can:manage-financial-entities');
 
+    Route::get('/transactions', [TransactionController::class, 'index'])
+        ->name('transactions.index')
+        ->middleware('can:manage-financial-entities');
+    Route::put('/transactions/selected-account', [TransactionController::class, 'updateSelectedAccount'])
+        ->name('transactions.selected-account.update')
+        ->middleware('can:manage-financial-entities');
+
     Route::get('/api/accounts', [AccountController::class, 'apiIndex'])
         ->name('api.accounts.index')
         ->middleware('can:manage-financial-entities');
@@ -114,8 +122,29 @@ Route::middleware(['auth', 'workspace'])->group(function () {
     Route::post('/accounts/{account}/transactions', [TransactionController::class, 'store'])
         ->name('accounts.transactions.store')
         ->middleware('can:manage-financial-entities');
+    Route::patch('/accounts/{account}/transactions/{transaction}', [TransactionController::class, 'update'])
+        ->name('accounts.transactions.update')
+        ->scopeBindings()
+        ->middleware('can:manage-financial-entities');
+    Route::delete('/accounts/{account}/transactions/{transaction}', [TransactionController::class, 'destroy'])
+        ->name('accounts.transactions.destroy')
+        ->scopeBindings()
+        ->middleware('can:manage-financial-entities');
     Route::post('/accounts/{account}/transfer', [TransactionController::class, 'transfer'])
         ->name('accounts.transfer')
+        ->middleware('can:manage-financial-entities');
+
+    Route::get('/categories', [CategoryController::class, 'index'])
+        ->name('categories.index')
+        ->middleware('can:manage-financial-entities');
+    Route::post('/categories', [CategoryController::class, 'store'])
+        ->name('categories.store')
+        ->middleware('can:manage-financial-entities');
+    Route::patch('/categories/{category}', [CategoryController::class, 'update'])
+        ->name('categories.update')
+        ->middleware('can:manage-financial-entities');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])
+        ->name('categories.destroy')
         ->middleware('can:manage-financial-entities');
 });
 

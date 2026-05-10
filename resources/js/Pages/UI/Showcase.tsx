@@ -75,13 +75,7 @@ export default function Showcase() {
   })
 
   return (
-    <AuthenticatedLayout
-      header={
-        <h2 className="text-xl font-semibold leading-tight text-gray-800">
-          UI Showcase
-        </h2>
-      }
-    >
+    <AuthenticatedLayout>
       <Head title="UI Showcase" />
 
       <div className="py-6 space-y-10">
@@ -89,7 +83,7 @@ export default function Showcase() {
         <section>
           <Breadcrumbs items={breadcrumbItems} />
           <PageTitle
-            title="Design System"
+            title="UI Showcase"
             description="Demonstração de todos os componentes do design system"
             actions={
               <>

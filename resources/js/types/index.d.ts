@@ -1,6 +1,11 @@
 import { WorkspaceProps } from './workspace';
 import type { AccountRow } from './accounts';
 
+export interface CategoryOption {
+    id: number;
+    name: string;
+}
+
 export interface User {
     id: number;
     name: string;
@@ -16,5 +21,12 @@ export type PageProps<
     };
     workspace: WorkspaceProps | null;
     workspaces: WorkspaceProps[];
+    flash: {
+        success?: string | null;
+        info?: string | null;
+        warning?: string | null;
+        error?: string | null;
+    };
+    categories?: CategoryOption[];
     accounts?: AccountRow[];
 };

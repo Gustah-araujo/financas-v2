@@ -3,22 +3,33 @@
 namespace App\Http\Requests;
 
 use App\Models\Category;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreTransactionRequest extends FormRequest
+class UpdateTransactionRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
-            'type' => ['required', 'string', 'in:debit,credit'],
             'amount' => ['required', 'integer', 'min:1'],
             'description' => ['required', 'string', 'max:255'],
             'date' => ['nullable', 'date'],
-            'redirect_to' => ['nullable', 'string', 'max:2048'],
             'category_id' => [
-                'required_if:type,debit',
-                'nullable',
+                'required',
                 'integer',
                 Rule::exists((new Category())->getTable(), 'id')
                     ->where(fn ($query) => $query->where('workspace_id', active_workspace()?->id)),

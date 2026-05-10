@@ -10,6 +10,7 @@ import {
     faBuildingColumns,
     faArrowRightArrowLeft,
     faTags,
+    faGear,
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function Authenticated({
@@ -33,13 +34,22 @@ export default function Authenticated({
         },
         {
             label: 'Transactions',
-            href: '/transactions',
+            href: route('transactions.index'),
             icon: faArrowRightArrowLeft,
+            active: route().current('transactions.*'),
         },
         {
-            label: 'Categories',
-            href: '/categories',
-            icon: faTags,
+            label: 'Configurações',
+            icon: faGear,
+            active: route().current('categories.*'),
+            children: [
+                {
+                    label: 'Categorias',
+                    href: route('categories.index'),
+                    icon: faTags,
+                    active: route().current('categories.*'),
+                },
+            ],
         },
     ]
 

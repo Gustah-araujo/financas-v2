@@ -99,7 +99,13 @@ describe('Sidebar', () => {
   const items: SidebarItem[] = [
     { label: 'Dashboard', href: '/dashboard', icon: faHome, active: true },
     { label: 'Transações', href: '/transactions', icon: faMoneyBill },
-    { label: 'Configurações', href: '/settings', icon: faGear },
+    {
+      label: 'Configurações',
+      icon: faGear,
+      children: [
+        { label: 'Categorias', href: '/categories', icon: faGear },
+      ],
+    },
   ]
 
   it('renders all nav items with labels', () => {
@@ -108,9 +114,10 @@ describe('Sidebar', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(screen.getByText('Transações')).toBeInTheDocument()
     expect(screen.getByText('Configurações')).toBeInTheDocument()
+    expect(screen.getByText('Categorias')).toBeInTheDocument()
   })
 
-  it('renders nav items as links with correct hrefs', () => {
+  it('renders top-level links only for items without submenu', () => {
     render(<Sidebar items={items} />)
 
     const links = screen.getAllByRole('link')
@@ -118,7 +125,27 @@ describe('Sidebar', () => {
 
     expect(links[0]).toHaveAttribute('href', '/dashboard')
     expect(links[1]).toHaveAttribute('href', '/transactions')
-    expect(links[2]).toHaveAttribute('href', '/settings')
+    expect(links[2]).toHaveAttribute('href', '/categories')
+  })
+
+  it('renders submenu trigger as button instead of link', () => {
+    render(<Sidebar items={items} />)
+
+    const trigger = screen.getByRole('button', { name: /configurações/i })
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('link', { name: /configurações/i })).not.toBeInTheDocument()
+  })
+
+  it('toggles submenu visibility when trigger is clicked', () => {
+    render(<Sidebar items={items} />)
+
+    const trigger = screen.getByRole('button', { name: /configurações/i })
+
+    fireEvent.click(trigger)
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('link', { name: /categorias/i })).toHaveAttribute('href', '/categories')
   })
 
   it('highlights the active item', () => {
@@ -140,9 +167,9 @@ describe('Sidebar', () => {
   it('renders icons for each nav item', () => {
     const { container } = render(<Sidebar items={items} />)
 
-    const links = container.querySelectorAll('nav a')
-    links.forEach((link) => {
-      expect(link.querySelector('svg')).toBeInTheDocument()
+    const navItems = container.querySelectorAll('nav a, nav button')
+    navItems.forEach((item) => {
+      expect(item.querySelector('svg')).toBeInTheDocument()
     })
   })
 

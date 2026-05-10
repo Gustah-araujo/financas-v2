@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
+use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +17,12 @@ class AccountController extends Controller
 {
     public function index(Request $request): Response
     {
-        return Inertia::render('Accounts');
+        return Inertia::render('Accounts', [
+            'categories' => Category::query()
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->toArray(),
+        ]);
     }
 
     public function apiIndex(Request $request): JsonResponse

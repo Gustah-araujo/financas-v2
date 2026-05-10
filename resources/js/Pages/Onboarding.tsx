@@ -1,9 +1,15 @@
-import { useEffect, useState } from 'react';
-import { usePage, useForm, Head } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import CreateWorkspaceModal from '@/Components/workspace/CreateWorkspaceModal';
-import Button from '@/Components/ui/Button';
-import TextInput from '@/Components/ui/Input/TextInput';
+import Breadcrumbs from '@/Components/layout/Breadcrumbs'
+import PageTitle from '@/Components/layout/PageTitle'
+import { useEffect, useState } from 'react'
+import { usePage, useForm, Head } from '@inertiajs/react'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
+import CreateWorkspaceModal from '@/Components/workspace/CreateWorkspaceModal'
+import Button from '@/Components/ui/Button'
+import TextInput from '@/Components/ui/Input/TextInput'
+
+const breadcrumbItems = [
+    { label: 'Onboarding' },
+]
 
 export default function Onboarding() {
     const { workspace } = usePage().props;
@@ -28,16 +34,14 @@ export default function Onboarding() {
         <AuthenticatedLayout>
             <Head title="Onboarding" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
-                    <div className="mb-8 text-center">
-                        <h1 className="text-2xl font-bold text-gray-900">
-                            Bem-vindo ao Finanças
-                        </h1>
-                        <p className="mt-2 text-gray-600">
-                            Para começar, crie um workspace ou entre com um código de convite.
-                        </p>
-                    </div>
+            <Breadcrumbs items={breadcrumbItems} />
+            <PageTitle
+                title="Bem-vindo ao Finanças"
+                description="Para começar, crie um workspace ou entre com um código de convite."
+            />
+
+            <div className="space-y-6">
+                <div className="mx-auto max-w-3xl">
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div className="overflow-hidden rounded-lg bg-white shadow-sm">

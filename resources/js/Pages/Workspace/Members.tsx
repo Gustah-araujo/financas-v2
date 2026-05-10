@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Breadcrumbs from '@/Components/layout/Breadcrumbs';
 import PageTitle from '@/Components/layout/PageTitle';
 import Button from '@/Components/ui/Button';
 import ConfirmDialog from '@/Components/ui/Modal/ConfirmDialog';
@@ -28,6 +29,11 @@ const roleLabels: Record<string, string> = {
 const roleOptions = [
   { value: 'owner', label: 'Proprietário' },
   { value: 'editor', label: 'Editor' },
+];
+
+const breadcrumbItems = [
+  { label: 'Dashboard', href: route('dashboard') },
+  { label: 'Membros' },
 ];
 
 function formatDate(dateStr: string): string {
@@ -111,9 +117,10 @@ export default function Members({ members, pendingInvitations, canManageMembers 
 
   return (
     <AuthenticatedLayout>
+      <Breadcrumbs items={breadcrumbItems} />
       <PageTitle
         title="Membros"
-        description="Gerencie os membros do seu workspace"
+        description="Gerencie os membros e convites ativos do workspace."
         actions={
           canManageMembers ? (
             <Button onClick={() => setShowInviteModal(true)}>Convidar</Button>

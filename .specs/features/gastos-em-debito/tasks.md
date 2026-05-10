@@ -128,9 +128,9 @@ T7
 
 ---
 
-### T5: Extend debit transaction creation with category and balance warning [P]
+### T5: Extend debit transaction creation with existing workspace categories and balance warning [P]
 
-**What**: Update the transaction creation flow so debit launches accept category scope and return a non-blocking warning when the account balance would go negative.
+**What**: Update the transaction creation flow so debit transactions use categories already registered in the active workspace and return a non-blocking warning when the account balance would go negative.
 **Where**: `app/Http/Controllers/TransactionController.php`, `app/Http/Requests/StoreTransactionRequest.php`, `tests/Feature/Accounts/CreateTransactionTest.php`
 **Depends on**: T1
 **Reuses**: existing `Transaction` ledger flow, `Account::balance()`, current `accounts.transactions.store` endpoint
@@ -144,6 +144,7 @@ T7
 **Done when**:
 
 - [ ] Debit transactions persist against the active workspace and selected account
+- [ ] Debit transactions only accept categories that belong to the active workspace
 - [ ] Validation requires a positive amount and a description
 - [ ] The response warns on insufficient balance but still saves the transaction
 - [ ] Existing balance calculations remain ledger-derived
@@ -181,9 +182,9 @@ T7
 
 ---
 
-### T7: Add debit history listing and filters [P]
+### T7: Add transactions listing entry point and new expense CTA [P]
 
-**What**: Expose the debit transaction history view so users can consult their workspace launches with account and period filters.
+**What**: Expose the transactions list as the entry point for the debit flow, with a `Novo gasto` CTA positioned before the table.
 **Where**: `resources/js/Pages/Transactions/*.tsx`, `app/Http/Controllers/TransactionController.php`, `tests/Feature/Accounts/TransactionHistoryTest.php`
 **Depends on**: T5
 **Reuses**: `GET /api/accounts/{account}/transactions`, current pagination response shape, existing table and form components
@@ -196,9 +197,10 @@ T7
 
 **Done when**:
 
-- [ ] The workspace can open a debit history page
+- [ ] The workspace can open the transactions page
 - [ ] Transactions are listed from the active workspace
-- [ ] Filters by account and period work as expected
+- [ ] The `Novo gasto` CTA appears before the transactions table
+- [ ] The page remains the entry point for the debit flow from the sidebar
 - [ ] Gate check passes: `php artisan test --compact tests/Feature/Accounts/TransactionHistoryTest.php`
 - [ ] Test count: 3 tests pass
 
@@ -232,7 +234,7 @@ Phase 2:
 | T4: Add Configurações > Categorias to the sidebar | 1 UI component area | ✅ Granular |
 | T5: Extend debit transaction creation with category and balance warning | 1 controller flow | ✅ Granular |
 | T6: Add transaction edit and delete flows | 1 controller flow | ✅ Granular |
-| T7: Add debit history listing and filters | 1 page flow | ✅ Granular |
+| T7: Add transactions listing entry point and new expense CTA | 1 page flow | ✅ Granular |
 
 ---
 
@@ -260,4 +262,4 @@ Phase 2:
 | T4: Add Configurações > Categorias to the sidebar | React sidebar/layout | unit | unit | ✅ OK |
 | T5: Extend debit transaction creation with category and balance warning | backend controller/request | feature | feature | ✅ OK |
 | T6: Add transaction edit and delete flows | backend controller/routes | feature | feature | ✅ OK |
-| T7: Add debit history listing and filters | backend controller + React page | feature | feature | ✅ OK |
+| T7: Add transactions listing entry point and new expense CTA | backend controller + React page | feature | feature | ✅ OK |

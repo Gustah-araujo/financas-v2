@@ -17,5 +17,7 @@ export interface TransactionRow {
   amount: number
   description: string
   date: string
+  category_id?: number | null
+  category_name?: string | null
   transfer_id?: string | null
 }

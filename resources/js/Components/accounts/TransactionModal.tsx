@@ -6,7 +6,7 @@ import TextInput from '@/Components/ui/Input/TextInput'
 import FormModal from '@/Components/ui/Modal/FormModal'
 import { toast } from '@/lib/toast'
 import type { AccountRow } from '@/types/accounts'
-import { useForm } from '@inertiajs/react'
+import { useForm, usePage } from '@inertiajs/react'
 import { useEffect } from 'react'
 
 interface TransactionModalProps {
@@ -25,11 +25,14 @@ function today() {
 }
 
 export default function TransactionModal({ open, onClose, account }: TransactionModalProps) {
+  const { categories = [] } = usePage().props
   const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
     type: 'debit',
     description: '',
     amount: 0,
     date: today(),
+    category_id: '',
+    redirect_to: '',
   })
 
   useEffect(() => {
@@ -39,12 +42,18 @@ export default function TransactionModal({ open, onClose, account }: Transaction
 
     reset()
     setData('date', today())
+    setData('type', 'debit')
+    setData('category_id', '')
+    setData('redirect_to', window.location.pathname)
     clearErrors()
   }, [clearErrors, open, reset, setData])
 
   function handleClose() {
     reset()
     setData('date', today())
+    setData('type', 'debit')
+    setData('category_id', '')
+    setData('redirect_to', window.location.pathname)
     clearErrors()
     onClose()
   }
@@ -61,6 +70,13 @@ export default function TransactionModal({ open, onClose, account }: Transaction
       onSuccess: () => {
         toast.success('Movimentação registrada com sucesso.')
         handleClose()
+      },
+      onError: (formErrors) => {
+        const message = Object.values(formErrors)[0]
+
+        if (message) {
+          toast.error(String(message))
+        }
       },
     })
   }
@@ -95,6 +111,15 @@ export default function TransactionModal({ open, onClose, account }: Transaction
           onChange={(value) => setData('type', Array.isArray(value) ? value[0] ?? 'debit' : value)}
           error={errors.type}
           required
+        />
+
+        <Select
+          label="Categoria"
+          options={categories.map((category) => ({ value: category.id, label: category.name }))}
+          value={data.category_id}
+          onChange={(value) => setData('category_id', Array.isArray(value) ? value[0] ?? '' : value)}
+          error={errors.category_id}
+          required={data.type === 'debit'}
         />
 
         <TextInput

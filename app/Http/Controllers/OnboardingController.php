@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Workspace;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,12 +29,18 @@ class OnboardingController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
-        $workspace = Workspace::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? null,
-        ]);
+        $workspace = DB::transaction(function () use ($request, $validated) {
+            $workspace = Workspace::create([
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+            ]);
 
-        $workspace->users()->attach($request->user()->id, ['role' => 'owner']);
+            $workspace->users()->attach($request->user()->id, ['role' => 'owner']);
+            DatabaseSeeder::seedWorkspaceCategories($workspace);
+
+            return $workspace;
+        });
+
         $request->session()->put('active_workspace_id', $workspace->id);
 
         return Redirect::route('dashboard');
